@@ -1,0 +1,9 @@
+{
+  "name": "aizen-backend",
+  "version": "1.0.0",
+  "description": "Backend for Aizen E-Commerce platform",
+  "main": "index.php",
+  "scripts": {
+    "install-deps": "composer install"
+  }
+}

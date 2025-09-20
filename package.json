@@ -1,0 +1,15 @@
+{
+  "name": "aizen-ecommerce",
+  "version": "1.0.0",
+  "description": "Aizen E-Commerce Platform",
+  "scripts": {
+    "install-frontend": "cd Aizen/frontend && npm install",
+    "install-backend": "cd Aizen/backend && composer install",
+    "install-all": "npm run install-frontend && npm run install-backend",
+    "dev": "cd Aizen/frontend && npm run dev",
+    "build": "cd Aizen/frontend && npm run build"
+  },
+  "workspaces": [
+    "Aizen/frontend"
+  ]
+}
