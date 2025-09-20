@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
+import { API_BASE } from '../../api/client';
 
 let Modal = ({ isOpen, onClose }) => {
   let [requestDetails, setRequestDetails] = useState('');
@@ -18,7 +19,7 @@ let Modal = ({ isOpen, onClose }) => {
           return;
         }
 
-        let response = await axios.get('http://localhost:8000/controller/Admin/getUserDetails.php', {
+        let response = await axios.get(`${API_BASE}/controller/Admin/getUserDetails.php`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -74,15 +75,24 @@ let Modal = ({ isOpen, onClose }) => {
       let requestData = { details: requestDetails, user_id: userId, email: email };
       console.log('Sending request with:', requestData);
 
-      let response = await axios.post('http://localhost:8000/controller/profile/vendorRequest.php', 
-        requestData, 
+      let response = await axios.post(
+        `${API_BASE}/controller/profile/vendorRequest.php`,
+        requestData,
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
 
-      onClose(); // Close modal after successful request
-      toast.success('Request submitted successfully');
+      if (response.data && response.data.success) {
+        onClose(); // Close modal after successful request
+        toast.success('Request submitted successfully');
+      } else {
+        const msg = response.data?.message || 'Failed to submit the request.';
+        toast.error(msg);
+      }
     } catch (error) {
       console.error('Error submitting request:', error.response?.data || error.message);
       toast.error('Failed to submit the request. Please try again.');

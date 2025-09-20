@@ -55,7 +55,7 @@ try {
     $stmt->bindParam(':details', $details);
 
     if ($stmt->execute()) {
-        if ($userRoleId) { // Temporarily remove the role check for testing
+        if ($userRoleId) { // keep email notification optional
             $mail = new PHPMailer(true);
 
             try {
@@ -67,15 +67,17 @@ try {
                 $mail->Password   = 'nxwe euhq phcg zjsz';
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port       = 587;
-                $mail->SMTPDebug  = 2; // Debug output
+                $mail->SMTPDebug  = 0; // Suppress verbose debug output in production
 
                 // Fetch email addresses of all users with role_id = 1
                 $stmt = $pdo->prepare("SELECT email FROM users WHERE role_id = 1");
                 $stmt->execute();
                 $roleOneUserEmails = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
+                // If there are no admin emails, skip sending email but do not fail the request
                 if (!$roleOneUserEmails) {
-                    throw new Exception('No email addresses found for role_id = 1');
+                    echo json_encode(['success' => true, 'message' => 'Request submitted. No admin emails configured.']);
+                    exit();
                 }
 
                 // Set up email
@@ -133,7 +135,7 @@ try {
                 </head>
                 <body>
                     <div class="container">
-                        <h1 class="logo">Aizen</h1>
+                        <h1 class="logo">Agrolink</h1>
                         <h3>New Vendor Request Submitted</h3>
                         <div class="details">
                             <p><strong>User ID:</strong> ' . htmlspecialchars($requestUserId) . '</p>
@@ -158,8 +160,8 @@ try {
                 echo json_encode(['success' => true, 'message' => 'Request submitted and email sent']);
             } catch (Exception $e) {
                 error_log('PHPMailer Error: ' . $e->getMessage());
-                http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'Failed to send email: ' . $e->getMessage()]);
+                // Do not fail the whole request if email fails; the request was inserted
+                echo json_encode(['success' => true, 'message' => 'Request submitted. Email could not be sent at this time.']);
             }
         } else {
             echo json_encode(['success' => true, 'message' => 'Request submitted but email not sent']);
