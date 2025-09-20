@@ -27,6 +27,25 @@ const Checkout = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(false); // Add loading state
 
+  // Proactively fetch userId here as well (in addition to CartSummary) to avoid timing issues
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      try {
+        const resp = await client.get('/Admin/getUserDetails.php', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (resp.data && resp.data.user && resp.data.user.id) {
+          setFormData(prev => ({ ...prev, userId: resp.data.user.id }));
+        }
+      } catch (e) {
+        // silently ignore; CartSummary will also attempt to set it
+      }
+    };
+    fetchUserId();
+  }, []);
+
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -104,6 +123,22 @@ const Checkout = () => {
   };
 
   const handleNextStep = () => {
+    // Validate shipping form (Step 1) before proceeding
+    const missingStep1 = [];
+    if (!formData.shippingName) missingStep1.push('Full Name');
+    if (!formData.houseDetail) missingStep1.push('House Detail');
+    if (!formData.zipcode) missingStep1.push('Zipcode');
+    if (!formData.phoneNo) missingStep1.push('Phone Number');
+    if (!formData.Country) missingStep1.push('Country');
+    if (!formData.stateSelect) missingStep1.push('State');
+    if (!formData.city) missingStep1.push('City');
+
+    if (missingStep1.length > 0) {
+      setError(`Please complete shipping information: ${missingStep1.join(', ')}`);
+      return;
+    }
+
+    setError('');
     setCurrentStep((prevStep) => prevStep + 1);
   };
 
@@ -111,9 +146,34 @@ const Checkout = () => {
     setError('');
     setLoading(true); // Set loading to true
 
-    if (!formData.paymentMethod) {
-      setError('Please select a payment method.');
-      setLoading(false); // Set loading to false
+    // Client-side validation mirroring backend required fields
+    const missing = [];
+    if (!formData.shippingName) missing.push('Full Name');
+    if (!formData.houseDetail) missing.push('House Detail');
+    if (!formData.city) missing.push('City');
+    if (!formData.zipcode) missing.push('Zipcode');
+    if (!formData.phoneNo) missing.push('Phone Number');
+    if (!formData.Country) missing.push('Country');
+    if (!formData.stateSelect) missing.push('State');
+    if (!formData.paymentMethod) missing.push('Payment Method');
+
+    if (missing.length > 0) {
+      setError(`Please fill the following required fields: ${missing.join(', ')}`);
+      setLoading(false);
+      return;
+    }
+
+    // Ensure userId is available (CartSummary should set it via onUserIdChange)
+    if (!formData.userId) {
+      setError('User not identified. Please sign in again.');
+      setLoading(false);
+      return;
+    }
+
+    // Ensure there are items to place order
+    if (!cartItems || cartItems.length === 0) {
+      setError('Your cart is empty. Please add items before placing an order.');
+      setLoading(false);
       return;
     }
 
@@ -136,40 +196,25 @@ const Checkout = () => {
           showConfirmButton: false,
         });
 
-        // Update cart quantities
+        // Backend already updates cart and creates order. Clear local state/storage and redirect.
         try {
-          const updateResponse = await client.post('/updatequantity.php', {
-            userId: formData.userId,
-            items: cartItems.map(item => ({
-              cart_item_id: item.cart_item_id,
-              quantity: item.quantity,
-            })),
-          });
+          localStorage.removeItem('payment');
+          localStorage.removeItem('formData');
+          localStorage.removeItem('cartItems');
+          localStorage.removeItem('total');
+        } catch {}
 
-          console.log('Update Response:', updateResponse.data);
-
-          if (updateResponse.data.success) {
-            localStorage.removeItem('payment');
-            localStorage.removeItem('formData');
-            localStorage.removeItem('cartItems');
-            localStorage.removeItem('total');
-
-            setTimeout(() => {
-              window.location.href = '/OrderDetails';
-            }, 2000);
-          } else {
-            setError(updateResponse.data.error || 'Failed to update quantities. Please try again.');
-          }
-        } catch (updateError) {
-          console.error('Update failed:', updateError);
-          setError('An error occurred while updating quantities. Please try again.');
-        }
+        setTimeout(() => {
+          window.location.href = '/OrderDetails';
+        }, 2000);
       } else {
-        setError(response.data.message || 'Failed to place order. Please try again.');
+        const backendMsg = response.data && (response.data.message || response.data.error);
+        setError(backendMsg || 'Failed to place order. Please try again.');
       }
     } catch (err) {
-      console.error('Error placing order:', err);
-      setError('Failed to place order. Please try again.');
+      console.error('Error placing order:', err?.response?.data || err.message);
+      const backendMsg = err?.response?.data?.message || err?.response?.data?.error;
+      setError(backendMsg || 'Failed to place order. Please try again.');
     } finally {
       setLoading(false); // Set loading to false
     }
@@ -189,6 +234,11 @@ const Checkout = () => {
       <div className="min-h-screen bg-gray-100 py-10 px-2 sm:px-3 lg:px-4">
         <div className="max-w-7xl mx-auto flex gap-4">
           <div className="flex-1 bg-white shadow-md rounded-lg p-4">
+          {error && (
+              <div className="mb-4 p-3 rounded bg-red-50 text-red-700 border border-red-200">
+                {error}
+              </div>
+            )}
           {loading && (
               <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
                 <TailSpin color="white" height={100} width={100} />

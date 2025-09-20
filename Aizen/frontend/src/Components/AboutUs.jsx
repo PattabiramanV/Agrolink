@@ -15,8 +15,8 @@ const AboutUs = () => {
       <section className="mb-12 shadow-none flex flex-col gap-32 md:flex-row items-center px-4 md:px-12"> {/* Added padding */}
         <div className="md:w-1/2 text-left space-y-6 mb-8 md:mb-0">
           <h2 className="text-3xl font-semibold text-gray-800 mb-4">Our Mission</h2>
-          <p className="text-lg text-gray-700 leading-relaxed">Welcome to Aizen, your premier destination for the latest in e-commerce technology. Our platform is designed to offer a seamless shopping experience with a user-friendly interface and robust features to help you find exactly what you need.</p>
-          <p className="text-lg text-gray-700 leading-relaxed">At Aizen, we pride ourselves on delivering high-quality products and exceptional customer service. Our advanced search capabilities, intuitive navigation, and comprehensive product details ensure you have all the information you need to make informed purchasing decisions.</p>
+          <p className="text-lg text-gray-700 leading-relaxed">Welcome to AgroLink, your premier destination for the latest in e-commerce technology. Our platform is designed to offer a seamless shopping experience with a user-friendly interface and robust features to help you find exactly what you need.</p>
+          <p className="text-lg text-gray-700 leading-relaxed">At AgroLink, we pride ourselves on delivering high-quality products and exceptional customer service. Our advanced search capabilities, intuitive navigation, and comprehensive product details ensure you have all the information you need to make informed purchasing decisions.</p>
         </div>
         <div className="md:w-1/3">
           <img src="../../../src/assets/customer.png" alt="Sellers stocking products" className="w-full h-auto object-cover rounded-lg  hover:scale-105" /> {/* Reduced size */}

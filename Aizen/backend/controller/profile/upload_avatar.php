@@ -11,13 +11,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Check if user_id is set in POST data
-    if (!isset($_POST['user_id'])) {
+    // Validate file upload first so we can return accurate errors for upload issues
+    if (!isset($_FILES['avatar'])) {
+        http_response_code(400);
+        echo json_encode(["message" => "No image file uploaded."]);
+        exit;
+    }
+
+    // Map common PHP upload errors to friendly messages
+    if ($_FILES['avatar']['error'] !== UPLOAD_ERR_OK) {
+        $errorMessages = [
+            UPLOAD_ERR_INI_SIZE   => 'Uploaded file exceeds the server limit (upload_max_filesize).',
+            UPLOAD_ERR_FORM_SIZE  => 'Uploaded file exceeds the form limit (MAX_FILE_SIZE).',
+            UPLOAD_ERR_PARTIAL    => 'File was only partially uploaded.',
+            UPLOAD_ERR_NO_FILE    => 'No file was uploaded.',
+            UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder on the server.',
+            UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
+            UPLOAD_ERR_EXTENSION  => 'A PHP extension stopped the file upload.'
+        ];
+        $msg = $errorMessages[$_FILES['avatar']['error']] ?? 'Unknown file upload error.';
+        http_response_code(400);
+        echo json_encode(["message" => $msg]);
+        exit;
+    }
+
+    // Only now require user_id, since we know the file is valid and present
+    if (!isset($_POST['user_id']) || $_POST['user_id'] === '') {
         http_response_code(400);
         echo json_encode(['message' => 'User ID is required']);
         exit();
     }
-    
+
     $userId = $_POST['user_id'];
 
     if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
@@ -30,9 +54,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        if ($file['size'] > 2 * 1024 * 1024) {
+        // Max upload size (in MB) for avatar images. Adjust as needed.
+        $maxSizeMB = 5; // e.g., allow up to 5MB
+        $maxSizeBytes = $maxSizeMB * 1024 * 1024;
+
+        if ($file['size'] > $maxSizeBytes) {
             http_response_code(400);
-            echo json_encode(["message" => "File size exceeds the limit of 2MB."]);
+            echo json_encode(["message" => "File size exceeds the limit of {$maxSizeMB}MB."]);
             exit;
         }
 

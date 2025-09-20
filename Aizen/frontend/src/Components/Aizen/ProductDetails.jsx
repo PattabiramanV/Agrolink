@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../Header';
 import Footer from '../Footer';
+import { API_BASE } from '../../api/client';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -114,7 +115,7 @@ const ProductDetails = () => {
     return <div className="text-center">Loading...</div>;
   }
 
-  const imageUrl = product.images ? `${import.meta.env.VITE_BASE_URL}/assets/images/${product.images}` : 'http://localhost:8000/assets/images/defaultImage.jpeg';
+  const imageUrl = product.images ? `${API_BASE}/assets/images/${product.images}` : `${API_BASE}/assets/images/defaultImage.jpeg`;
 
   return (
     <div className="bg-white min-h-screen">
@@ -243,12 +244,12 @@ const ProductDetails = () => {
                 </span>
               )}
               <img
-                src={`http://localhost:8000/assets/images/${prod.images}`}
+                src={`${API_BASE}/assets/images/${prod.images}`}
                 alt={prod.name}
                 className="w-full h-48 object-cover rounded-lg"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = 'http://localhost:8000/assets/images/defaultImage.jpeg';
+                  e.target.src = `${API_BASE}/assets/images/defaultImage.jpeg`;
                 }}
               />
               {prod.quantity === 0 && (

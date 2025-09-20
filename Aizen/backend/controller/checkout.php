@@ -29,6 +29,18 @@ class CheckoutController
         $this->db = $objDb->connect();
     }
 
+    private function columnExists($table, $column)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table AND COLUMN_NAME = :column");
+            $stmt->execute(['table' => $table, 'column' => $column]);
+            return (bool)$stmt->fetchColumn();
+        } catch (Exception $e) {
+            // Fallback: attempt a harmless query
+            return false;
+        }
+    }
+
     public function handleCheckout()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -60,13 +72,23 @@ class CheckoutController
 
             $validPaymentMethods = ['cod']; // Add more valid methods if needed
 
-            // Validate required fields
-            if (empty($userId) || empty($shippingName) || empty($houseDetail) || empty($areaTown) || empty($zipcode) || empty($phoneNo) || empty($countryId) || empty($stateId)) {
-                echo json_encode(['status' => 'error', 'message' => 'Required fields are missing.']);
+            // Validate required fields with detailed feedback
+            $missing = [];
+            if (empty($userId)) $missing[] = 'userId';
+            if (empty($shippingName)) $missing[] = 'shippingName';
+            if (empty($houseDetail)) $missing[] = 'houseDetail';
+            if (empty($areaTown)) $missing[] = 'city';
+            if (empty($zipcode)) $missing[] = 'zipcode';
+            if (empty($phoneNo)) $missing[] = 'phoneNo';
+            if (empty($countryId)) $missing[] = 'Country';
+            if (empty($stateId)) $missing[] = 'stateSelect';
+            if (!empty($missing)) {
+                echo json_encode(['status' => 'error', 'message' => 'Required fields are missing.', 'missing' => $missing]);
                 return;
             }
 
-            if (!in_array($paymentMethod, $validPaymentMethods)) {
+            // If a payment method is provided, ensure it's valid; otherwise allow empty (schema may not store it)
+            if (!empty($paymentMethod) && !in_array($paymentMethod, $validPaymentMethods)) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid payment method specified.']);
                 return;
             }
@@ -88,9 +110,43 @@ class CheckoutController
                     return;
                 }
 
-                // Insert order
-                $stmt = $this->db->prepare("INSERT INTO orders (shipping_name, user_id, total, payment_method, house_detail, area_town, zipcode, phone_no, country_id, state_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $success = $stmt->execute([$shippingName, $userId, $total, $paymentMethod, $houseDetail, $areaTown, $zipcode, $phoneNo, $countryId, $stateId]);
+                // Determine correct user id column name in orders table
+                $userIdColumn = $this->columnExists('orders', 'user_id') ? 'user_id' : ($this->columnExists('orders', 'customer_id') ? 'customer_id' : null);
+                if ($userIdColumn === null) {
+                    echo json_encode(['status' => 'error', 'message' => "Orders table is missing a user reference column (expected 'user_id' or 'customer_id')."]);
+                    return;
+                }
+
+                // Compute total from cart items if not provided
+                if (empty($total) && !empty($cartItems)) {
+                    $sum = 0;
+                    foreach ($cartItems as $ci) {
+                        $q = (int)($ci['quantity'] ?? 0);
+                        $p = (float)($ci['selling_price'] ?? 0);
+                        $sum += ($q * $p);
+                    }
+                    $total = $sum;
+                }
+
+                // Build dynamic insert based on available columns in orders table
+                $columns = ['shipping_name', $userIdColumn, 'house_detail', 'area_town', 'zipcode', 'phone_no', 'country_id', 'state_id'];
+                $values = [$shippingName, $userId, $houseDetail, $areaTown, $zipcode, $phoneNo, $countryId, $stateId];
+
+                if ($this->columnExists('orders', 'total')) {
+                    array_splice($columns, 2, 0, 'total'); // after shipping_name and userIdColumn
+                    array_splice($values, 2, 0, $total);
+                }
+                if ($this->columnExists('orders', 'payment_method') && !empty($paymentMethod)) {
+                    // Insert payment_method at end
+                    $columns[] = 'payment_method';
+                    $values[] = $paymentMethod;
+                }
+
+                $placeholders = implode(', ', array_fill(0, count($columns), '?'));
+                $columnsSql = implode(', ', $columns);
+                $sql = "INSERT INTO orders ($columnsSql) VALUES ($placeholders)";
+                $stmt = $this->db->prepare($sql);
+                $success = $stmt->execute($values);
 
                 if ($success) {
                     $orderId = $this->db->lastInsertId();
@@ -193,7 +249,7 @@ class CheckoutController
             $mail->Port = 587;
     
             // Recipients
-            $mail->setFrom('no-reply@example.com', 'Aizen Orders');
+            $mail->setFrom('no-reply@example.com', 'Agrolink Orders');
             $mail->addAddress($userEmail); // Use the customer's email
     
             // Retrieve order items
@@ -314,7 +370,7 @@ class CheckoutController
             </head>
             <body>
                 <div class='container'>
-                    <h1>Aizen</h1>
+                    <h1>Agrolink</h1>
                     <h3>Order Confirmation</h3>
                                         <center><img src='" . htmlspecialchars($imageUrl, ENT_QUOTES, 'UTF-8') . "' alt='Welcome Image'></center>
 
@@ -348,7 +404,7 @@ class CheckoutController
                     <p>We are currently processing your order and will notify you once it has been shipped. If you have any questions, please do not hesitate to contact us.</p>
                     <div class='footer'>
                         <p>Thank you for your purchase</p>
-                        <p><strong>Aizen</strong></p>
+                        <p><strong>Agrolink</strong></p>
                     </div>
                 </div>
             </body>

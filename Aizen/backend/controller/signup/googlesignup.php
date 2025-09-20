@@ -149,7 +149,7 @@ try {
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port       = 587;
 
-                $mail->setFrom('aizendckap@gmail.com', 'Aizen Dckap');
+                $mail->setFrom('aizendckap@gmail.com', 'Agrolink');
                 $mail->addAddress($email, $name);
 
                 $mail->isHTML(true);
@@ -245,17 +245,17 @@ try {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <h1 class="logo">Welcome to Aizen</h1>
+                            <h1 class="logo">Welcome to Agrolink</h1>
                         </div>
                         <div class="content">
                             <h2>Hi ' . htmlspecialchars($name) . ',</h2>
                             <p>Welcome! Your registration is completed.</p>
                             <img src="' . $imageUrl . '" alt="Welcome Image">
-                            <a href="http://localhost:3000/home" class="button">Go to Aizen</a>
+                            <a href="http://localhost:3000/home" class="button">Go to Agrolink</a>
                             <p>If you have any questions, feel free to <a href="mailto:aizendckap@gmail.com">contact us</a>.</p>
                         </div>
                         <div class="footer">
-                            <p>&copy; ' . date("Y") . ' Aizen. All rights reserved.</p>
+                            <p>&copy; ' . date("Y") . ' Agrolink. All rights reserved.</p>
                         </div>
                     </div>
                 </body>

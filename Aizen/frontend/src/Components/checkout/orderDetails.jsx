@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../Header';
+import { API_BASE } from '../../api/client';
 
 const OrderDetails = () => {
     const [orderDetails, setOrderDetails] = useState([]);
@@ -14,7 +15,7 @@ const OrderDetails = () => {
         const fetchUserId = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:8000/controller/Admin/getUserDetails.php', {
+                const response = await axios.get(`${API_BASE}/controller/Admin/getUserDetails.php`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -38,7 +39,7 @@ const OrderDetails = () => {
 
         const fetchOrderDetails = async () => {
             try {
-                const orderResponse = await axios.get(`http://localhost:8000/controller/orderDetails.php?id=${userId}`);
+                const orderResponse = await axios.get(`${API_BASE}/controller/orderDetails.php?id=${userId}`);
                 if (orderResponse.data.success) {
                     setOrderDetails(orderResponse.data.data);
                 } else {
@@ -65,8 +66,8 @@ const OrderDetails = () => {
                     house_detail: order.house_detail,
                     area_town: order.area_town,
                     zipcode: order.zipcode,
-                    payment_method: order.payment_method,
-                    status: order.status,
+                    payment_method: order.payment_method || '—',
+                    status: order.status || '—',
                     created_at: order.created_at,
                     total_amount: order.total_amount,
                 };
@@ -124,12 +125,12 @@ const OrderDetails = () => {
                                         {order.items.map((item, index) => (
                                             <div key={index} className="flex items-center bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
                                                 <img
-                                                    src={`http://localhost:8000/assets/images/${item.product_image}`}
+                                                    src={`${API_BASE}/assets/images/${item.product_image}`}
                                                     alt={item.product_name}
                                                     className="w-24 h-24 object-cover rounded-lg border border-gray-300 mr-4"
                                                     onError={(e) => {
                                                         e.target.onerror = null;
-                                                        e.target.src = 'https://via.placeholder.com/128';
+                                                        e.target.src = `${API_BASE}/assets/images/defaultImage.jpeg`;
                                                     }}
                                                 />
                                                 <div className="flex-1">
