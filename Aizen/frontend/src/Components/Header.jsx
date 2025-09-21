@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import client, { API_BASE } from '../api/client';
+import Logo from '../assets/a2-logo.png';
+import AvatarPlaceholder from '../assets/avatar-placeholder.svg';
 import { FaCartPlus, FaUser } from 'react-icons/fa';
 import { BiSearch } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
@@ -62,15 +64,25 @@ const Header = ({ onSearch, onStoreChange }) => {
         });
         const avatar = res.data?.avatar;
         if (avatar) {
-          const absolute = /^https?:\/\//i.test(avatar) || avatar.startsWith('data:')
-            ? avatar
-            : `${API_BASE}/${String(avatar).replace(/^\//, '')}`;
+          let absolute;
+          if (/^https?:\/\//i.test(avatar) || String(avatar).startsWith('data:')) {
+            absolute = avatar;
+          } else {
+            const cleaned = String(avatar).replace(/^\//, '');
+            if (/^controller\/profile\/uploads\//.test(cleaned)) {
+              absolute = `${API_BASE}/${cleaned}`;
+            } else {
+              absolute = `${API_BASE}/controller/profile/uploads/${cleaned}`;
+            }
+          }
           setAvatarUrl(absolute);
+          try { localStorage.setItem('avatarUrl', absolute); } catch {}
         } else {
-          setAvatarUrl(`${API_BASE}/assets/images/placeholder.jpg`);
+          setAvatarUrl(AvatarPlaceholder);
         }
       } catch (err) {
         console.error('Error fetching avatar:', err);
+        setAvatarUrl(AvatarPlaceholder);
       }
     };
 
@@ -232,7 +244,7 @@ const Header = ({ onSearch, onStoreChange }) => {
     <div className="bg-gradient-to-r from-green-300 to-green-500 shadow-md text-white sticky top-0 left-0 right-0 z-50">
       <div className="flex items-center justify-between p-3">
         <div className="flex items-center">
-          <img src="../../src/assets/a2-logo.png" alt="Logo" className="h-12 w-auto cursor-pointer" onClick={handleHomeClick} />
+          <img src={Logo} alt="AgroLink Logo" className="h-12 w-auto cursor-pointer" onClick={handleHomeClick} />
         </div>
 
         <div className="relative mx-4">
@@ -306,6 +318,7 @@ const Header = ({ onSearch, onStoreChange }) => {
                 alt="Profile"
                 className="w-8 h-8 rounded-full object-cover cursor-pointer border border-white"
                 onClick={handleProfileClick}
+                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = AvatarPlaceholder; setAvatarUrl(AvatarPlaceholder); }}
               />
             ) : (
               <FaUser className="text-2xl cursor-pointer" onClick={handleProfileClick} />

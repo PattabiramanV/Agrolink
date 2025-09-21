@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import client, { API_BASE } from '../../api/client';
+import AvatarPlaceholder from '../../assets/avatar-placeholder.svg';
 import Header from '../Header';
 import Modal from './vendorpopup'; // Ensure this path is correct
 import { toast, ToastContainer } from 'react-toastify';
@@ -10,7 +11,7 @@ const Profile = ({ setProfileOpen }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [imageUrl, setImageUrl] = useState(null);
+  const [imageUrl, setImageUrl] = useState(AvatarPlaceholder);
   const [avatarFile, setAvatarFile] = useState(null);
   const [userId, setUserId] = useState(null);
   const [email, setEmail] = useState(''); // Add state for email
@@ -80,10 +81,11 @@ const Profile = ({ setProfileOpen }) => {
           setImageUrl(absolute);
           try { localStorage.setItem('avatarUrl', absolute); } catch {}
         } else {
-          setImageUrl(`${API_BASE}/assets/images/placeholder.jpg`);
+          setImageUrl(AvatarPlaceholder);
         }
       } catch (error) {
         console.error('Error fetching profile:', error.response?.data || error.message);
+        setImageUrl(AvatarPlaceholder);
       }
     };
 

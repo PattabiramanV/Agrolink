@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Logo from '../assets/a2-logo.png';
 
 const Footer = () => {        
     return (
@@ -6,7 +7,7 @@ const Footer = () => {
     <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
         <div className="grid grid-cols-2 md:col-span-3 lg:grid-cols-6 gap-y-16 gap-x-12">
             <div className="col-span-2 md:col-span-3 lg:col-span-2 lg:pr-8">
-                <img className="w-auto h-24" src="../src/assets/a2-logo.png" alt="" />
+                <img className="w-auto h-24" src={Logo} alt="AgroLink Logo" />
 
                 <p className="text-base leading-relaxed text-gray-600 mt-7">"Fresh from the farm to your table. Experience the taste of nature with every bite."</p>
 
@@ -100,7 +101,7 @@ const Footer = () => {
             </div>
             <div>
                         <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3886.1493408534952!2d80.22326607373404!3d13.089720212280307!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a52642e3c8faf7f%3A0x5c1f7526b2bfe819!2sDCKAP!5e0!3m2!1sen!2sin!4v1721880792926!5m2!1sen!2sin"
+                            src="https://www.google.com/maps?q=Government+Arts+and+Science+College,+Thiruvennainallur,+Villupuram,+Tamil+Nadu&output=embed"
                             width="350"
                             height="300"
                             style={{ border: 0 }}

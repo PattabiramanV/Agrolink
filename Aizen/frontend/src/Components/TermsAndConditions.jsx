@@ -16,7 +16,7 @@ const TermsAndConditions = () => {
         <div className="text-left space-y-6">
           <h2 className="text-3xl font-semibold text-gray-800 mb-4">Introduction</h2>
           <p className="text-lg text-gray-700 leading-relaxed">
-            Welcome to Aizen! By accessing our platform, you agree to be bound by these Terms and Conditions. Please read them carefully to ensure you understand your rights and obligations when using our services.
+            Welcome to AgroLink! By accessing our platform, you agree to be bound by these Terms and Conditions. Please read them carefully to ensure you understand your rights and obligations when using our services.
           </p>
         </div>
       </section>
