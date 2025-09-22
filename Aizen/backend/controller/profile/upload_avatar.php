@@ -54,14 +54,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Max upload size (in MB) for avatar images. Adjust as needed.
-        $maxSizeMB = 5; // e.g., allow up to 5MB
-        $maxSizeBytes = $maxSizeMB * 1024 * 1024;
-
-        if ($file['size'] > $maxSizeBytes) {
-            http_response_code(400);
-            echo json_encode(["message" => "File size exceeds the limit of {$maxSizeMB}MB."]);
-            exit;
+        // Max upload size (in MB) for avatar images.
+        // Set to 0 to disable application-level limit (server/php.ini limits may still apply).
+        $maxSizeMB = 0;
+        if ($maxSizeMB > 0) {
+            $maxSizeBytes = $maxSizeMB * 1024 * 1024;
+            if ($file['size'] > $maxSizeBytes) {
+                http_response_code(400);
+                echo json_encode(["message" => "File size exceeds the limit of {$maxSizeMB}MB."]);
+                exit;
+            }
         }
 
         $uploadDir = './uploads/';

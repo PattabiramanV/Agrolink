@@ -51,7 +51,7 @@ try {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port       = 587;
 
-            $mail->setFrom('aizendckap@gmail.com', 'Aizen Dckap');
+            $mail->setFrom('aizendckap@gmail.com', 'AgroLink');
             $mail->addAddress($user['email'], $user['name']);
             $mail->isHTML(true);
             
@@ -68,7 +68,7 @@ try {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <h1 class="logo">Aizen Notification</h1>
+                            <h1 class="logo">AgroLink Notification</h1>
                         </div>
                         <div class="content">
                             <h2>Hi ' . htmlspecialchars($user['name']) . ',</h2>
@@ -78,7 +78,7 @@ try {
                             <p>If you have any questions, feel free to <a href="mailto:aizendckap@gmail.com">contact us</a>.</p>
                         </div>
                         <div class="footer">
-                            <p>&copy; ' . date("Y") . ' Aizen. All rights reserved.</p>
+                            <p>&copy; ' . date("Y") . ' AgroLink. All rights reserved.</p>
                         </div>
                     </div>
                 </body>
@@ -95,7 +95,7 @@ try {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <h1 class="logo">Aizen Notification</h1>
+                            <h1 class="logo">AgroLink Notification</h1>
                         </div>
                         <div class="content">
                             <h2>Hi ' . htmlspecialchars($user['name']) . ',</h2>
@@ -105,7 +105,7 @@ try {
                             <p>If you have any questions or need further assistance, please <a href="mailto:aizendckap@gmail.com">contact us</a>.</p>
                         </div>
                         <div class="footer">
-                            <p>&copy; ' . date("Y") . ' Aizen. All rights reserved.</p>
+                            <p>&copy; ' . date("Y") . ' AgroLink. All rights reserved.</p>
                         </div>
                     </div>
                 </body>

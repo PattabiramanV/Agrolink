@@ -273,8 +273,16 @@ class CheckoutController
                     </tr>";
             }
     
-            // Content
-            $imageUrl = 'https://cdn.discordapp.com/attachments/1163859351568650270/1277507116361580544/Successful_purchase-pana.png?ex=66cf64f7&is=66ce1377&hm=46f21165a33fd221285dcb8b51df6b2cdc15074e2de562cd22176b71169a1c62&';
+            // Content: embed image via CID if local asset exists; otherwise use a stable external URL
+            $imageTag = '';
+            $localImagePath = __DIR__ . '/../assets/images/order_success.png';
+            if (file_exists($localImagePath)) {
+                $mail->addEmbeddedImage($localImagePath, 'order_success');
+                $imageTag = "<center><img src='cid:order_success' alt='Order Success Image' style=\"max-width:100%;height:350px;display:block;margin:20px 0;\"></center>";
+            } else {
+                $fallbackUrl = 'https://cdn-icons-png.flaticon.com/512/845/845646.png';
+                $imageTag = "<center><img src='" . htmlspecialchars($fallbackUrl, ENT_QUOTES, 'UTF-8') . "' alt='Order Success Image' style=\"max-width:100%;height:350px;display:block;margin:20px 0;\"></center>";
+            }
     
             $mail->isHTML(true);
             $mail->Subject = 'Order Confirmation';
@@ -372,7 +380,7 @@ class CheckoutController
                 <div class='container'>
                     <h1>Agrolink</h1>
                     <h3>Order Confirmation</h3>
-                                        <center><img src='" . htmlspecialchars($imageUrl, ENT_QUOTES, 'UTF-8') . "' alt='Welcome Image'></center>
+                    " . $imageTag . "
 
                     <p>Dear <span class='highlight'>" . htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') . "</span>,</p>
                     <p>Thank you for your order! Your order ID is <strong>" . htmlspecialchars($orderId, ENT_QUOTES, 'UTF-8') . "</strong> and the total amount is <strong>₹" . htmlspecialchars($total, ENT_QUOTES, 'UTF-8') . "</strong>.</p>

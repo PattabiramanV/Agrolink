@@ -18,7 +18,7 @@ const DryfruitsList = ({ searchTerm, storeId }) => {
       try {
         const response = await client.get('/productDetail.php');
         if (response.data && !response.data.error) {
-          const spiceProducts = response.data.allProducts.filter(product => product.category_id === 6);
+          const spiceProducts = response.data.allProducts.filter(product => product.category_id === 4);
           const shuffledProducts = shuffleArray(spiceProducts);
           setProducts(shuffledProducts);
           setFilteredProducts(shuffledProducts);

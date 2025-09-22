@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $mail->Port       = 587;
 
                     // Set email parameters
-                    $mail->setFrom('aizendckap@gmail.com', 'Aizen Dckap');
+                    $mail->setFrom('aizendckap@gmail.com', 'AgroLink');
                     $mail->addAddress($userEmail);
 
                     // Email content
@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <p>Thank you for your patience.</p>
                             </div>
                             <div class="footer">
-                                <p>&copy; ' . date("Y") . ' Aizen. All rights reserved.</p>
+                                <p>&copy; ' . date("Y") . ' AgroLink. All rights reserved.</p>
                             </div>
                         </div>
                     </body>
@@ -188,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mail->Port       = 587;
 
                 // Set email parameters
-                $mail->setFrom('aizendckap@gmail.com', 'Aizen Dckap');
+                $mail->setFrom('aizendckap@gmail.com', 'AgroLink');
                 $mail->addAddress($userEmail);
 
                 // Email content
@@ -263,7 +263,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <p>Thank you.</p>
                         </div>
                         <div class="footer">
-                            <p>&copy; ' . date("Y") . ' Aizen. All rights reserved.</p>
+                            <p>&copy; ' . date("Y") . ' AgroLink. All rights reserved.</p>
                         </div>
                     </div>
                 </body>
